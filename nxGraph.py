@@ -1,4 +1,5 @@
 import networkx as nx
+import matplotlib.pyplot as plt
 
 
 def construct_graph(vertices,edges):
@@ -54,7 +55,7 @@ def broadcast(node, id, toOtherNodesList):
 
 vertices=[[0,0],[100,100],[400,300],[200,210]]
 vertices_ID=[id for id in range(len(vertices))]
-edges=[[0,1],[0,2],[1,2],[1,2],[2,3]]
+edges=[[0,1],[0,2],[1,2],[2,3]]
 
 G=construct_graph(vertices,edges)
 print(G.edges())
@@ -97,3 +98,6 @@ for c in colors:
 #	C v = {ID u | u ∈ N (v) and status u = available}.
 
 
+nx.draw_networkx(G)
+plt.axis('off')
+plt.show()
