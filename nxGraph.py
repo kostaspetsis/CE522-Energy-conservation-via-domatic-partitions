@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 
 import sys
 import equitable_color as coloring
+import math as m
+import random
 
 def construct_graph(vertices,edges):
 	G = nx.Graph()
@@ -59,9 +61,11 @@ def serialize(G):
 def n_min(list1,n): 
 	t=[]
 	list1copy = list1.copy()
+	print("listcopy=",list1copy)
 	for i in range(n):
-		t.append(min(list1copy))#append min of list in a new list
-		list1copy.remove(min(list1copy))#remove min of list from the list
+		if list1copy:
+			t.append(min(list1copy))#append min of list in a new list
+			list1copy.remove(min(list1copy))#remove min of list from the list
 	print('by n_min function: ',t)
 	return t
 messages = []
@@ -184,13 +188,13 @@ for c in colors:
 #	C v = {ID u | u ∈ N (v) and status u = available}.
 	Cu = []
 	for node in list(independent_set):
-		# if c[node] == c:
-		if id_color_map[node] == c:
-			neighbors = adjacent(G,node)
-			
-			for n in neighbors:
-				if n in available:
-					Cu.append(n)
+		if node in id_color_map:
+			if id_color_map[node] == c:
+				neighbors = adjacent(G,node)
+				
+				for n in neighbors:
+					if n in available:
+						Cu.append(n)
 
 #	Each node v ∈ I colored r by χ picks the smallest
 #	δ 1 /(L + 1) IDs from C v and places these in S v .
@@ -204,7 +208,8 @@ for c in colors:
 			if node not in S:
 				S[node] = []
 			d1 = min([G.degree(i) for i in neighbors])
-			numOfSmallest = d1/(L+1)
+			print(d1,L+1)
+			numOfSmallest = m.ceil(d1/(L+1))#make float division to integer
 			smallests = n_min(Cu,numOfSmallest)
 			for small in smallests:
 				S[node].append(small)
@@ -213,30 +218,39 @@ for c in colors:
 #	may receive a set S of IDs from a neighbor in I.
 #	Node u then checks if ID u ∈ S and if so u sets
 #	status u ← unavailable and S u ← S.			
-	for node in G_Except_I:
+	for node in list(G_Except_I):
 		if node in available:
-			neighbors = adjacent(G,node)
-			neighbors = set(neighbors)
+			neighbors = set(adjacent(G,node))
+			print("neighbors:", neighbors)
 			neighbors_in_I = neighbors.intersection(independent_set)
 			# get_random_neighbor
-			nei = random.choice(neighbors_in_I)
+			print("neighbors in I:", 	neighbors_in_I)
+			nei = random.choice(list(neighbors_in_I))
+			print("nei, S->", nei,S)
 			# get the set S from the previous neighbor
-			set_S = S[nei]
-			if node in set_S:#if IDu belongs to previous set S
-				#get removed from available
-				available.remove(node)
-				#sets status to unavailable
-				unavailable.add(node)
+			if nei in S:
+				set_S = S[nei]
+				if node in set_S:#if IDu belongs to previous set S
+					#get removed from available
+					available.remove(node)
+					#sets status to unavailable
+					unavailable.add(node)
 
-				#Su <- S???????
-				# TODO
-				# Isws S[node] = set_S
+					#Su <- S???????
+					# TODO
+					# Isws S[node] = set_S
+					S[node] = set_S
 
-#5] Each unavailable node v computes the rank r of ID v in
+#5] Each unavailable node u computes the rank r of ID v in
 #S v and colors itself r. Each available node colors itself
 #1. Let this coloring of vertices be denoted x' . Note that
 #this vertex coloring need not be proper.
-
+pr = nx.pagerank(G, alpha=0.9)
+print(pr)
+for u in unavailable:
+	#compute the rank of IDu in Su
+	# S[u]
+	pass
 
 
 
